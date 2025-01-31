@@ -20,7 +20,7 @@ export const post = [
   authMiddleware,
   async (req: CustomRequest, res: Response) => {
     const { name } = req.body;
-    const created_by = req.user.name;
+    const created_by = req.user.username;
 
     const newTodoCategory = await main_db.mst_todo_category.create({
       data: {
