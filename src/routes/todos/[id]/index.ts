@@ -11,6 +11,14 @@ export const get = async (req: Request, res: Response) => {
       id,
       deleted_at: null,
     },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 
   if (!todo) {
@@ -31,8 +39,7 @@ export const put = [
     const { category_id, title, description, progress } = req.body;
     const id = parseInt(req.params.id);
 
-    console.log('Ini dari PUT: ', req.user);
-    
+    console.log("Ini dari PUT: ", req.user);
 
     const isExist = await main_db.tr_todo.findFirst({
       where: {

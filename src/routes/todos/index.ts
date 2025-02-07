@@ -8,6 +8,14 @@ export const get = async (req: Request, res: Response) => {
     where: {
       deleted_at: null,
     },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
   });
 
   res.status(200).json({
