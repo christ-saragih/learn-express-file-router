@@ -60,35 +60,51 @@ export const put = [
 ];
 
 export const del = [
-    authMiddleware,
-    async (req: Request, res: Response) => {
-      const id = parseInt(req.params.id);
-  
-      const isExist = await main_db.mst_todo_category.findFirst({
-        where: {
-          id,
-          deleted_at: null,
-        },
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+
+    // Cek apakah kategori ada dan belum dihapus
+    const isExist = await main_db.mst_todo_category.findFirst({
+      where: {
+        id,
+        deleted_at: null,
+      },
+    });
+
+    if (!isExist) {
+      return res.status(404).json({
+        message: "Kategori todo tidak ditemukan",
       });
-  
-      if (!isExist) {
-        return res.status(404).json({
-          message: "Kategori todo tidak ditemukan",
-        });
-      }
-  
-      const todoCategory = await main_db.mst_todo_category.update({
-        where: {
-          id,
-        },
-        data: {
-          deleted_at: new Date(),
-        },
+    }
+
+    // Cek apakah ada todos yang terkait dengan kategori
+    const relatedTodo = main_db.tr_todo.findMany({
+      where: {
+        category_id: id,
+        deleted_at: null,
+      },
+    });
+
+    if (relatedTodo) {
+      return res.status(400).json({
+        message:
+          "Kategori ini tidak bisa dihapus karena masih digunakan oleh todo",
       });
-  
-      return res.status(200).json({
-        message: "Kategori todo berhasil dihapus",
-        data: todoCategory,
-      });
-    },
-  ];
+    }
+
+    const todoCategory = await main_db.mst_todo_category.update({
+      where: {
+        id,
+      },
+      data: {
+        deleted_at: new Date(),
+      },
+    });
+
+    return res.status(200).json({
+      message: "Kategori todo berhasil dihapus",
+      data: todoCategory,
+    });
+  },
+];
