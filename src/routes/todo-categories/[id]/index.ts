@@ -79,14 +79,14 @@ export const del = [
     }
 
     // Cek apakah ada todos yang terkait dengan kategori
-    const relatedTodo = main_db.tr_todo.findMany({
+    const relatedTodo = await main_db.tr_todo.findMany({
       where: {
         category_id: id,
         deleted_at: null,
       },
     });
 
-    if (relatedTodo) {
+    if (relatedTodo.length > 0) {
       return res.status(400).json({
         message:
           "Kategori ini tidak bisa dihapus karena masih digunakan oleh todo",
